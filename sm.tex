@@ -1,0 +1,93 @@
+% NOTE: uncomment if using arXiv format, comment block below otherwise
+\documentclass[11pt]{article}
+
+
+% % NOTE: uncomment if using Biometrika format, comment block below otherwise
+% %% FIX INCOMPATIBILITY OF BIOMETRIKA CLASS WITH LATEX KERNEL
+% %% https://tex.stackexchange.com/questions/575327/extra-endgroup-when-using-the-biometrika-template
+% %% save the original kernel definitions
+% \let\latexarabic\arabic
+% \let\latexdocument\document
+% \let\latexenddocument\enddocument
+% %%% fix for bad usage of ntheorem
+% \RequirePackage[thmmarks]{ntheorem}
+% \makeatletter
+% \renewtheoremstyle{plain}
+%   {\item[\hskip\labelsep \theorem@headerfont ##1\ \textup{##2}\theorem@separator]}
+%   {\item[\hskip\labelsep \theorem@headerfont ##1\ \textup{##2}\ (##3)\theorem@separator]}
+% \makeatother
+% \documentclass[lineno]{biometrika}
+
+
+% load various specifications
+\include{_preamble}
+\zexternaldocument*[main:]{paper}
+\title{\textit{Supplementary Materials for}\\ \titlepaper}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% prefix an "S" to most types of equations, figures, tables %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\renewcommand*{\thesection}{S\arabic{section}}
+\renewcommand*{\thesubsection}{S\arabic{section}.\arabic{subsection}}
+\renewcommand{\theequation}{S\arabic{equation}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thealgocf}{S\arabic{algocf}}
+%\renewcommand{\thelemma}{S\arabic{lemma}}
+%\renewcommand{\thetheorem}{S\arabic{theorem}}
+\renewcommand{\bibnumfmt}[1]{[S#1]}
+\renewcommand{\citenumfont}[1]{S#1}
+\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\makeatletter
+% FOR BIOMETRIKA
+\@ifclassloaded{biometrika}{%
+  % set list of authors
+  \authorlist
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% set/reset counters for most environment types %%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \setcounter{equation}{0}
+  \setcounter{figure}{0}
+  \setcounter{table}{0}
+  \setcounter{page}{1}
+  %% NOTE: HAVE TO MANUALLY INCREMENT BASED ON EXTERNAL DOCUMENT
+  \setcounter{lemma}{3}
+  \setcounter{theorem}{2}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+}{%
+%% FOR ARXIV
+  \author{\authorlist}
+  \date{\today}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %% set/reset counters for most environment types %%
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \setcounter{equation}{0}
+  \setcounter{figure}{0}
+  \setcounter{table}{0}
+  \setcounter{page}{1}
+  \setcounter{lemma}{\getrefnumber{main:finallemma}}
+  \addtocounter{lemma}{-1}
+  \setcounter{theorem}{\getrefnumber{main:finalthm}}
+  \addtocounter{theorem}{-1}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+}
+\makeatother
+
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \citet{mises1947asymptotic} had a very useful expansion technique.
+
+% TODO: fill in the supplement
+To be filled in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{refs}
+\end{document}

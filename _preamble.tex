@@ -1,0 +1,166 @@
+% standard packages and options
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{amsmath,amsfonts,amssymb,bbm,bm,dsfont,mathtools,relsize,exscale}
+\usepackage{tikz}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[OT1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[inline,shortlabels]{enumitem}
+\bibliographystyle{biometrika}
+\graphicspath{ {figs/} }
+
+% for cross-linking documents
+\usepackage{refcount,nameref,zref-xr,zref-user} % nameref before zref-xr
+\zxrsetup{toltxlabel} % allows use of the \ref command as usual
+\usepackage{url}
+
+% https://tex.stackexchange.com/questions/339408/how-to-color-cross-reference-with-oxford-bioinfomatics-latex-template
+\let\href\undefined
+\usepackage[colorlinks,citecolor=blue,urlcolor=blue]{hyperref}
+
+% journal-specific packages
+\makeatletter%
+\@ifclassloaded{biometrika}{%
+  %% FIX INCOMPATIBILITY OF BIOMETRIKA CLASS WITH LATEX KERNEL
+  %%% recover the original definitions
+  \let\document\latexdocument
+  \let\enddocument\latexenddocument
+  \AtEndDocument{\printhistory}
+  \let\arabic\latexarabic
+  \def\rm{}
+
+  %%% User-defined macros should be placed here, but keep them to a minimum.
+  \def\Bka{{\it Biometrika}}
+  \def\AIC{\textsc{aic}}
+  \def\T{{ \mathrm{\scriptscriptstyle T} }}
+  \def\v{{\varepsilon}}
+
+  %\addtolength\topmargin{35pt}
+  \DeclareMathOperator{\Thetabb}{\mathcal{C}}
+
+  % authorship details
+  \jname{Biometrika}
+  %% The year, volume, and number are determined on publication
+  %\jyear{2022}
+  %\jvol{X}
+  %\jnum{X}
+
+  %% The \doi{...} and \accessdate commands are used by the production team
+  %\doi{10.1093/biomet/asm023}
+  %\accessdate{Advance Access publication on 30 August 2020}
+
+  %% These dates are usually set by the production team
+  %\received{15 May 2022}
+  %\revised{15 November 2022}
+
+  %% The left and right page headers are defined here:
+  \markboth{Testa et al.}{Efficient inference for conditional longitudinal modified treatment policies}
+
+  \newcommand{\authorlist}{
+      %% Here are the title, author names and addresses
+      \author{Christian Testa} 
+      \affil{Department of Biostatistics,\\
+        Harvard T.H. Chan School of Public Health,\\
+        665 Huntington Avenue, Boston, MA 02115
+      \email{ctesta@hsph.harvard.edu}}
+
+      \author{Anybody who wants to join}
+      \affil{Department ...,\\
+        Institute,\\
+        665 Huntington Avenue, Boston, MA 02115
+      \email{}}
+
+      \author{Christopher D. Golden}
+      \affil{Department of Nutrition, \\
+        Department of Environmental Health,
+        Harvard T.H. Chan School of Public Health,\\
+        665 Huntington Avenue, Boston, MA 02115\\
+        \email{golden@hsph.harvard.edu}
+      \email{}}
+
+      \author{Nima S. ~Hejazi}
+      \affil{Department of Biostatistics, \\
+        Harvard T.H. Chan School of Public Health,\\
+        665 Huntington Avenue, Boston, MA 02115
+      \email{nhejazi@hsph.harvard.edu}}
+
+  }
+}{%
+  %for plain article format only
+  \usepackage{arxiv}
+  \usepackage{standalone}
+  \usepackage{multirow}
+  \usepackage{setspace}
+  \usepackage{amsthm}
+  \usepackage[round]{natbib}
+
+  % custom math definitions and macros that conflict with Biometrika
+  \newtheorem{theorem}{Theorem}
+  \newtheorem{lemma}{Lemma}
+  \newtheorem{remark}{Remark}
+  \newtheorem{definition}{Definition}
+  \newtheorem{proposition}{Proposition}
+  {\theoremstyle{definition}\newtheorem{assumption}{}}
+  {\theoremstyle{definition}\newtheorem{condition}{}}
+  {\theoremstyle{definition}\newtheorem{example}{Example}[section]}
+
+  % authorship details
+  \newcommand{\authorlist}{
+    Christian Testa \\
+    Department of Biostatistics,\\
+    Harvard T.H. Chan School of Public Health,\\
+    \texttt{ctesta@hsph.harvard.edu}\\
+    \And
+    Anybody who wants to join \\
+    Department ...,\\
+    Institute ...,\\
+    \texttt{email}\\
+    \And
+    Christopher D.~Golden \\
+    Department of Nutrition, Department of Environmental Health,\\
+    Harvard T.H. Chan School of Public Health,\\
+    \texttt{golden@hsph.harvard.edu}\\
+    \And
+    Nima S.~Hejazi \\
+    Department of Biostatistics,\\
+    Harvard T.H. Chan School of Public Health,\\
+    \texttt{nhejazi@hsph.harvard.edu}\\
+  }
+}
+\makeatother
+
+% paper title
+\newcommand{\titlepaper}{Efficient inference for conditional longitudinal modified treatment policies}
+
+% counters and definitions
+\AtEndDocument{\refstepcounter{theorem}\label{finalthm}}
+\AtEndDocument{\refstepcounter{equation}\label{finaleq}}
+\AtEndDocument{\refstepcounter{lemma}\label{finallemma}}
+\renewcommand\theassumption{{A}\arabic{assumption}}
+\renewcommand\thecondition{{C}\arabic{condition}}
+\renewcommand\theexample{\arabic{example}}
+
+% math macros
+\renewcommand{\d}{\mathbbm{d}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\M}{\mathcal{M}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\logit}{\text{logit}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\prob}{\mathbb{P}}
+\newcommand{\1}{\mathbbm{1}}
+\newcommand{\indep}{\mbox{$\perp\!\!\!\perp$}}
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+% editors
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\nh}[1]{\textcolor{Cyan}{*** Nima: #1}}
+\newcommand{\ct}[1]{\textcolor{ForestGreen}{*** Christian: #1}}

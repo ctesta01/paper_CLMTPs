@@ -1,0 +1,42 @@
+\contentsline {assumption}{{Assumption}{{A}1}{Consistency}}{5}{assumption.1}%
+\contentsline {assumption}{{Assumption}{{A}2}{Strong sequential randomization}}{6}{assumption.2}%
+\contentsline {remark}{{Remark}{1}{}}{6}{remark.1}%
+\contentsline {assumption}{{Assumption}{{A}3}{LMTP support condition}}{6}{assumption.3}%
+\contentsline {remark}{{Remark}{2}{}}{6}{remark.2}%
+\contentsline {assumption}{{Assumption}{{A}4}{Regularity of the policy map}}{6}{assumption.4}%
+\contentsline {assumption}{{Assumption}{{A}5}{Baseline conditioning event}}{6}{assumption.5}%
+\contentsline {theorem}{{Theorem}{1}{Iterated conditional mean identification}}{7}{theorem.1}%
+\contentsline {proof}{{Proof}{1}{}}{7}{proof.1}%
+\contentsline {theorem}{{Theorem}{2}{Pseudo-outcome representation of the conditional LMTP mean}}{9}{theorem.2}%
+\contentsline {proof}{{Proof}{2}{}}{9}{proof.2}%
+\contentsline {remark}{{Remark}{3}{Role of the pseudo-outcome}}{9}{remark.3}%
+\contentsline {remark}{{Remark}{4}{}}{11}{remark.4}%
+\contentsline {remark}{{Remark}{5}{}}{13}{remark.5}%
+\contentsline {remark}{{Remark}{6}{}}{15}{remark.6}%
+\contentsline {remark}{{Remark}{7}{Second-stage regression and HAL}}{15}{remark.7}%
+\contentsline {proposition}{{Proposition}{1}{Efficient influence function of the projection}}{16}{proposition.1}%
+\contentsline {proof}{{Proof}{3}{}}{16}{proof.3}%
+\contentsline {theorem}{{Theorem}{3}{Asymptotic linearity of the working-model projection}}{16}{theorem.3}%
+\contentsline {proof}{{Proof}{4}{}}{17}{proof.4}%
+\contentsline {remark}{{Remark}{8}{Simultaneous bands for the fitted summary}}{17}{remark.8}%
+\contentsline {remark}{{Remark}{9}{The subgroup TMLE as a saturated projection}}{17}{remark.9}%
+\contentsline {assumption}{{Assumption}{{A}6}{Sieve regularity}}{17}{assumption.6}%
+\contentsline {proposition}{{Proposition}{2}{Pointwise and uniform sieve inference}}{18}{proposition.2}%
+\contentsline {proof}{{Proof}{5}{}}{18}{proof.5}%
+\contentsline {remark}{{Remark}{10}{Nuisance rates are again weaker than root-\(n\)}}{18}{remark.10}%
+\contentsline {remark}{{Remark}{11}{Practical selection of the sieve}}{18}{remark.11}%
+\contentsline {assumption}{{Assumption}{{A}7}{Regularity for subgroup TMLE}}{19}{assumption.7}%
+\contentsline {theorem}{{Theorem}{4}{Asymptotic linearity of the subgroup TMLE}}{20}{theorem.4}%
+\contentsline {proof}{{Proof}{6}{}}{20}{proof.6}%
+\contentsline {remark}{{Remark}{12}{}}{20}{remark.12}%
+\contentsline {assumption}{{Assumption}{{A}8}{Second-stage stability}}{21}{assumption.8}%
+\contentsline {theorem}{{Theorem}{5}{Oracle equivalence of the LMTP DR-Learner}}{21}{theorem.5}%
+\contentsline {proof}{{Proof}{7}{}}{21}{proof.7}%
+\contentsline {corollary}{{Corollary}{1}{Consistency of the DR-Learner}}{22}{corollary.1}%
+\contentsline {proof}{{Proof}{8}{}}{22}{proof.8}%
+\contentsline {proposition}{{Proposition}{3}{Product form of the conditional remainder}}{22}{proposition.3}%
+\contentsline {proof}{{Proof}{9}{}}{22}{proof.9}%
+\contentsline {corollary}{{Corollary}{2}{Sufficient product-rate conditions}}{23}{corollary.2}%
+\contentsline {remark}{{Remark}{13}{Multiple robustness}}{23}{remark.13}%
+\contentsline {remark}{{Remark}{14}{Weaker conditions for the DR-Learner}}{23}{remark.14}%
+\contentsline {remark}{{Remark}{15}{Subgroup-proportion remainder}}{23}{remark.15}%
