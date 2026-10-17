@@ -1,22 +1,23 @@
 % NOTE: uncomment if using arXiv format, comment block below otherwise
-% \documentclass[11pt]{article}
+\documentclass[11pt]{article}
 
 
 % % NOTE: uncomment if using Biometrika format, comment block below otherwise
 % %% FIX INCOMPATIBILITY OF BIOMETRIKA CLASS WITH LATEX KERNEL
 % %% https://tex.stackexchange.com/questions/575327/extra-endgroup-when-using-the-biometrika-template
-% %% save the original kernel definitions
-\let\latexarabic\arabic
-\let\latexdocument\document
-\let\latexenddocument\enddocument
-%%% fix for bad usage of ntheorem
-\RequirePackage[thmmarks]{ntheorem}
-\makeatletter
-\renewtheoremstyle{plain}
-  {\item[\hskip\labelsep \theorem@headerfont ##1\ \textup{##2}\theorem@separator]}
-  {\item[\hskip\labelsep \theorem@headerfont ##1\ \textup{##2}\ (##3)\theorem@separator]}
-\makeatother
-\documentclass[lineno]{biometrika}
+%% save the original kernel definitions
+% \let\latexarabic\arabic
+% \let\latexdocument\document
+% \let\latexenddocument\enddocument
+% %% fix for bad usage of ntheorem
+% \RequirePackage[thmmarks]{ntheorem}
+% \makeatletter
+% \renewtheoremstyle{plain}
+%   {\item[\hskip\labelsep \theorem@headerfont ##1\ \textup{##2}\theorem@separator]}
+%   {\item[\hskip\labelsep \theorem@headerfont ##1\ \textup{##2}\ (##3)\theorem@separator]}
+% \makeatother
+% % \documentclass[lineno]{biometrika}
+% \documentclass[lineno]{biometrika}
 
 
 % load various specifications
@@ -31,6 +32,8 @@
   \authorlist
 }{%
 %% FOR ARXIV
+  \usepackage{amsthm}
+  \newtheorem{corollary}[theorem]{Corollary}
   \author{\authorlist}
   \date{\today}
 }
@@ -43,21 +46,24 @@
 
 \begin{abstract}
 Longitudinal modified treatment policies (LMTPs) are an increasingly common
-approach for the estimation and inference of causal effects corresponding to changes in longitudinal exposures or treatment. In many problems, scientific interest lies not only in 
-overall effects but also subgroup-specific or conditional effects. However, little work has
-been done to address efficiently estimating the effects of LMTPs on many
-subgroups simultaneously. We present a novel targeted learning approach for the 
-efficient estimation of subgroup-specific LMTP effects, where subgroups are defined by characteristics of observations at baseline,
-which provides multiply robust and semiparametric efficient estimators. 
-Our procedure for estimating subgroup effects of LMTPs allows for the construction of
-simultaneous confidence intervals across subgroups. For handling 
-continuous covariates defined at baseline, we develop a DR-learner inspired approach for 
-estimating conditional LMTPs consisting of forming an efficient influence function based
-pseudo-outcome regressed on baseline variables.  
-As a case study, we apply 
-our method to the question of how deforestation in Madagascar during the 2010-2022 timeframe
-may have affected malaria incidence rates at 2,773 clinics where effect heterogeneity was expected
-by ecological zone.
+approach for the estimation and inference of causal effects of hypothetical
+changes to exposure levels received over time in the presence of measured
+time-varying confounders. However, little work has been done on the problem of
+characterizing effect heterogeneity in LMTP effects across discrete subgroups or
+with continuous effect modifiers. We present a novel targeted learning approach
+for the efficient estimation of subgroup specific LMTP effects that provides
+multiply robust, asymptotically efficient substitution estimators. We
+additionally outline a procedure for simultaneous inference across multiple
+subgroup-specific LMTP effects. For handling the effects of continuous baseline
+effect modifiers, we develop a meta-learning approach for estimating conditional
+LMTP effects, and we present techniques for carrying out efficient estimation of
+collections of conditional LMTP parameters across distinct LMTPs via a working
+marginal structural model thereby allowing for interpretable summaries of effect
+heterogeneity across a range of interventions in the longitudinal setting. We
+illustrate our method by applying it to a question of how different
+deforestation policies would have differentially affected malaria incidence
+rates in Madagascar during the 2010-2023 timeframe at 2,773 clinics with effect
+heterogeneity expected by ecological zone.
 
 Keywords: Causal inference, Longitudinal Modified Treatment Policies, Treatment Effect
 Heterogeneity, Efficient Inference, Subgroup Effects
@@ -482,7 +488,10 @@ conditional target is defined for the subgroup or covariate values of interest.
 \subsection{Iterated conditional mean representation}
 \label{subsec:iterated-mean-representation}
 
-Define the terminal outcome regression
+We extend the identification result described in \cite{diazNonparametricCausalEffects2023} 
+to the conditional effects of LMTPs now. We carry out a backwards sequential 
+iterated expectations argument, and hence start with the last of a series of 
+regressions. Define the final outcome regression
 \[
   m_{\tau}^{\mathbbm d}(a_\tau,h_\tau)
   =
@@ -1120,7 +1129,7 @@ The targeting step proceeds backward in time. Let
   \widehat Y_{\tau+1,i}^{\mathbbm d,*}=Y_i.
 \]
 For \(s=\tau,\tau-1,\ldots,0\), fit a fluctuation submodel for the current
-outcome regression using \(\widehat Y_{s+1,i}^{\mathbbm d,*}\) as the outcome,
+outcome regression using \(\widehat Y_{s+1,i}^{\mathbbm d,*}\) as the pseudo-outcome,
 \(\widehat m_{s,i}^{\mathbbm d}(A_{s,i},H_{s,i})\) as the initial prediction, and
 \(\widehat H_s^{\mathbbm d}(O_i)\) as the clever covariate. With an identity
 link, the fluctuation model is
@@ -1280,14 +1289,6 @@ using the quantiles of
 where \(\widehat\sigma_v^2\) is the \(v\)th diagonal element of
 \(\widehat\Sigma_\tau\).
 
-\begin{remark}
-The targeting step above updates the full vector of subgroup parameters jointly
-at each time point. This is preferable to fitting a separate TMLE within each
-subgroup when some subgroups are small, because the nuisance regressions are
-estimated using the full sample while the clever covariates target the
-subgroup-specific components of the efficient influence function.
-\end{remark}
-
 \subsection{DR-Learner for conditional LMTP effects}
 \label{subsec:dr-learner}
 
@@ -1374,11 +1375,9 @@ policy-specific pseudo-outcomes.
 The second-stage regression may be chosen to reflect the scientific structure
 expected in the conditional effect. If \(V\) is low-dimensional and continuous,
 local linear regression, splines, generalized additive models, or local
-polynomial regression are natural choices. If \(V\) is multivariate, random
-forests, gradient boosting, neural networks, or Super Learner ensembles may be
-used. If the scientific question concerns a pre-specified low-dimensional
-projection of the conditional effect, one may regress the pseudo-outcome on a
-parametric or semiparametric working model for \(V\).
+polynomial regression are natural choices. We note that 
+the second stage learners should satisfy the linear smoother definition
+given in \cite{kennedyOptimalDoublyRobust2023a}.
 
 The corresponding benchmark estimator is the regression that would be obtained
 if the nuisance functions were known:
@@ -1401,7 +1400,7 @@ and, for a contrast,
     \mid V=v
   \right].
 \]
-The theoretical results in Section~\ref{sec:theory} compare the feasible
+The theoretical results in Section \ref{sec:theory} compare the feasible
 DR-Learner to this benchmark regression. In particular, oracle equivalence holds
 when the smoothed second-order bias induced by nuisance estimation is negligible
 relative to the oracle second-stage regression error.
@@ -1415,61 +1414,22 @@ additional advantage that it updates the nuisance regressions to solve the
 efficient influence-function equations for the subgroup parameters.
 \end{remark}
 
-\begin{remark}[Second-stage regression and HAL]
-Uncertainty quantification for the DR-Learner depends on both the
-second-stage regression method and the target of inference. For
-finite-dimensional projections of the conditional effect, standard asymptotic
-linearity can often be obtained from the corresponding projected estimating
-equations. For pointwise or uniform inference on a nonparametric conditional
-effect curve, additional analysis is required.
-
-One strategically attractive choice for the second-stage regression is the
-highly adaptive lasso (HAL). HAL estimates cadlag functions with finite
-sectional variation norm by empirical risk minimization over a large dictionary
-of tensor-product indicator basis functions subject to an \(\ell_1\) constraint.
-For regression-type function estimation, HAL attains loss-based convergence
-rates that typically imply \(L_2(P_0)\) convergence at rate
-\(n^{-1/3}\), up to logarithmic factors, under only a finite sectional variation
-norm condition. This rate is faster than \(n^{-1/4}\), which is often the
-critical threshold appearing in second-order remainder conditions for
-doubly robust and targeted estimators. HAL is therefore appealing as a
-second-stage learner because it can estimate flexible conditional effect
-functions while retaining nonparametric rate guarantees under relatively weak
-global regularity assumptions.
-
-Undersmoothed HAL may be particularly relevant if the goal is inference rather
-than only prediction. Existing work shows that undersmoothed HAL can yield
-asymptotically efficient plug-in estimators of pathwise differentiable features
-of an infinite-dimensional regression function, and higher-order spline
-extensions of HAL provide pointwise asymptotic normality and uniform
-convergence rates for function estimation under stronger smoothness conditions.
-These results suggest that HAL-based second-stage regression may provide a
-promising route toward inference for conditional LMTP effect curves. However,
-establishing pointwise or uniform confidence bands for the LMTP DR-Learner
-requires theory specific to the pseudo-outcome, the second-stage target, and the
-chosen smoothing or undersmoothing rule. We therefore establish a general
-oracle-equivalence result for the DR-Learner in
-Section~\ref{sec:theory} and leave method-specific pointwise and uniform
-inference for conditional LMTP effect curves to future work.
-\end{remark}
-
-
 \subsection{Projections onto working marginal structural models}
 \label{subsec:msm-projection}
 
 The subgroup TMLE of Section~\ref{subsec:subgroup-tmle} and the DR-Learner of
-Section~\ref{subsec:dr-learner} occupy two extremes: fully saturated inference
-over a finite \(\mathcal V\), and fully nonparametric estimation of
-\(v\mapsto\theta_{\d}(v)\) at nonparametric rates. Applied reporting often
-calls for something in between --- a low-dimensional, interpretable summary of
-how the policy effect varies with \(V\), with root-\(n\) inference --- or for
-pointwise and uniform inference on the conditional effect curve itself. Both
-are obtained by regressing the influence-function pseudo-outcome on a basis in
-\(V\): a \emph{fixed} basis yields a working marginal structural model (MSM)
+Section~\ref{subsec:dr-learner} reflect two ends of a spectrum: on 
+the one hand, fully saturated inference
+over a finite set of discrete subgroups \(\mathcal V\), and on the other fully nonparametric estimation of
+\(v\mapsto\theta_{\d}(v)\) at nonparametric rates. Applied analysis often
+calls for something in between, such as a low-dimensional, interpretable summary of
+how the policy effect varies with \(V\), with root-\(n\) inference. We note that both 
+of these procedures are obtained by regressing the efficient influence function pseudo-outcome on a basis in
+\(V\): a fixed basis yields a working marginal structural model (MSM)
 whose projection coefficients are pathwise differentiable, while a basis of
-\emph{growing} dimension, undersmoothed so that approximation bias is
-negligible, yields valid inference on \(\theta_{\d}\) itself. We present the
-two regimes together because they share one estimator.
+growing dimension, undersmoothed so that approximation bias is
+negligible, can yield valid inference on \(\theta_{\d}\) itself. We explore
+the idea of projecting onto a working MSM here. 
 
 \subsection{Fixed-dimensional working models}
 \label{subsubsec:msm-fixed}
@@ -1556,8 +1516,7 @@ mean and \(h\,b\) is a fixed baseline-measurable weight; the contribution of
 the marginal law of \(V\) through \(M\) is absorbed by centering at
 \(b(V)^\top\beta_{\d}\), which renders \(D_{\beta,\d}\) mean zero by the normal
 equations. The delta method for estimating equations, with derivative matrix
-\(\partial_\beta\,\E\,U=-M\), gives the stated form. Details are provided in
-the Supplementary Material.
+\(\partial_\beta\,\E\,U=-M\), gives the stated form. 
 \end{proof}
 
 The estimator is the weighted least-squares regression of the cross-fitted
@@ -1664,14 +1623,8 @@ conditionally mean-zero term \(e_{\widehat\eta}\) is
 \(\|h\,b\|_\infty\,\E|b_{\widehat\eta}^{\d}(V)|\), which is
 \(o_p(n^{-1/2})\) under the product-rate condition by
 Proposition~\ref{prop:second-order-remainder} and the Cauchy--Schwarz
-inequality; \(\widehat M\to M\) in probability completes the argument. Details
-are given in the Supplementary Material.
+inequality; \(\widehat M\to M\) in probability completes the argument. 
 \end{proof}
-
-Note that the rate condition in Theorem~\ref{thm:msm-projection-al} involves
-the \emph{marginal} \(L_2(P_0)\) norms rather than the subgroup-restricted
-norms of Corollary~\ref{cor:product-rates}: because the projection averages
-over \(V\), no subgroup-specific nuisance accuracy is required.
 
 \begin{remark}[Simultaneous bands for the fitted summary]
 \label{rem:msm-simultaneous}
@@ -1704,138 +1657,15 @@ Section~\ref{subsec:subgroup-tmle} may be viewed as its targeted refinement,
 whose plug-in form guarantees that estimates respect the parameter space.
 \end{remark}
 
-\subsection{Undersmoothed B-spline sieves}
-\label{subsubsec:msm-sieve}
-
-When \(V\) is continuous and the target is \(\theta_{\d}(v)\) itself, the same
-weighted least-squares estimator may be used with a basis whose dimension grows
-with \(n\). Let \(V\) have compact support
-\(\mathcal V\subset\R^{d_V}\), and let
-\(b_{k_n}(v)\in\R^{k_n}\) collect tensor-product B-splines of fixed order
-\(\ell\) on a quasi-uniform knot sequence, with \(k_n\to\infty\). Write
-\(\widehat\theta_{\d,n}(v)=b_{k_n}(v)^\top\widehat\beta_{\d,n}\) for the
-resulting series estimator and
-\(\sigma_n^2(v)=b_{k_n}(v)^\top\Sigma_{\beta,n}\,b_{k_n}(v)/n\) for its
-pointwise variance, with \(\Sigma_{\beta,n}\) as in
-Theorem~\ref{thm:msm-projection-al} at dimension \(k_n\). For local bases such
-as B-splines, \(\sigma_n(v)\asymp (k_n/n)^{1/2}\), while the sup-norm
-approximation bias of the projection satisfies
-\(\sup_v|b_{k_n}(v)^\top\beta_{\d,n}-\theta_{\d}(v)|
-=O(k_n^{-s/d_V})\)
-when \(\theta_{\d}\) is \(s\)-smooth with \(s\le\ell\). \emph{Undersmoothing}
-selects \(k_n\) large enough that the bias is negligible relative to the
-pointwise standard deviation, so that the confidence statements center on
-\(\theta_{\d}\) rather than on its projection.
-
-\begin{assumption}[Sieve regularity]
-\label{assump:sieve}
-(i) The density of \(V\) is bounded away from zero and infinity on
-\(\mathcal V\); (ii) \(\theta_{\d}\) belongs to a H\"older class of smoothness
-\(s\le\ell\) on \(\mathcal V\); (iii) the dimension satisfies
-\(k_n\log n/n\to 0\) and the undersmoothing condition
-\(n\,k_n^{-(2s/d_V+1)}\to 0\); (iv) the pseudo-outcome has uniformly bounded
-conditional \((2+\varepsilon)\)-th moments given \(V\), as holds under
-condition~3 of Assumption~\ref{assump:subgroup-tmle-regularity}; and (v) the
-nuisance product-rate condition of Theorem~\ref{thm:msm-projection-al} holds.
-\end{assumption}
-
-Condition (iii) is nonvacuous whenever
-\(n^{d_V/(2s+d_V)}\ll k_n\ll n/\log n\): the sieve dimension is taken of larger
-order than the mean-squared-error-optimal choice, sacrificing rate optimality
-for centering. Under (i), B-spline Gram matrices have eigenvalues bounded away
-from zero and infinity and
-\(\sup_v\|b_{k_n}(v)\|\asymp k_n^{1/2}\), so the conditions of the least-squares
-series literature apply
-\cite{belloni2015series,semenova2021debiased}.
-
-\begin{proposition}[Pointwise and uniform sieve inference]
-\label{prop:sieve-inference}
-Under Assumptions~\ref{assump:consistency}--\ref{assump:baseline-v}
-and~\ref{assump:sieve}, with cross-fitted pseudo-outcomes,
-\[
-  \frac{
-    \widehat\theta_{\d,n}(v)
-    -
-    \theta_{\d}(v)
-  }{
-    \widehat\sigma_n(v)
-  }
-  \rightsquigarrow
-  N(0,1)
-  \quad\text{for each fixed }v,
-\]
-and the multiplier-bootstrap critical value
-\(\widehat c_{1-\alpha}\) for
-\(\sup_{v\in\mathcal V}
-|\widehat\theta_{\d,n}(v)-\theta_{\d}(v)|/\widehat\sigma_n(v)\)
-yields uniformly valid confidence bands,
-\[
-  \P
-  \left\{
-    \theta_{\d}(v)
-    \in
-    \widehat\theta_{\d,n}(v)
-    \pm
-    \widehat c_{1-\alpha}\,
-    \widehat\sigma_n(v)
-    \ \text{for all }
-    v\in\mathcal V
-  \right\}
-  \to
-  1-\alpha.
-\]
-The analogous statements hold for the contrast \(\tau(\cdot)\).
-\end{proposition}
-
-\begin{proof}
-The result follows by verifying the conditions of
-\cite{belloni2015series} and \cite{semenova2021debiased} for least-squares
-series regression with the estimated outcome \(\widehat\varphi_{\d}\):
-the decomposition
-\(\widehat\varphi_{\d}
-=\varphi_{\d}(O;\eta_0^{\d})+b_{\widehat\eta}^{\d}(V)+e_{\widehat\eta}(O)\)
-reduces the problem to the oracle series regression plus a nuisance-bias
-contribution whose projection is uniformly
-\(o_p\{(k_n/n)^{1/2}\}\) under condition (v), since the product-rate condition
-implies \(\|b_{\widehat\eta}^{\d}\|_{2}=o_p(n^{-1/2})=o_p\{(k_n/n)^{1/2}\}\),
-and a conditionally centered contribution controlled by cross-fitting. The
-undersmoothing condition (iii) renders the approximation bias
-\(o_p\{\sigma_n(v)\}\) uniformly. Verification of the technical conditions is
-given in the Supplementary Material.
-\end{proof}
-
-\begin{remark}[Nuisance rates are again weaker than root-\(n\)]
-\label{rem:sieve-rates}
-As in Remark~\ref{rem:dr-learner-rates}, requiring the nuisance products to be
-\(o_p(n^{-1/2})\) in condition (v) is convenient but conservative: since the
-sieve standard deviation is of order \((k_n/n)^{1/2}\gg n^{-1/2}\), it suffices
-that the products be \(o_p\{(k_n/n)^{1/2}\}\), a strictly weaker requirement
-that grows weaker as the band is made more flexible.
-\end{remark}
-
-\begin{remark}[Practical selection of the sieve]
-\label{rem:sieve-practice}
-In practice we take cubic B-splines (\(\ell=4\)), place knots at quantiles of
-\(V\), select a mean-squared-error-optimal dimension
-\(\widehat k\) by cross-validation on the pseudo-outcome regression, and then
-undersmooth by a fixed multiple, e.g.\ \(k_n=\lceil c\,\widehat k\rceil\) with
-\(c\in[1.5,2]\); the resulting bands are wider than the cross-validated fit's
-naive bands, which is the price of centering on \(\theta_{\d}\) rather than a
-smoothed surrogate. Alternatives that avoid undersmoothing --- explicit bias
-correction in the second-stage regression \cite{takatsu2022debiased} --- apply
-here as well by substituting our pseudo-outcome, exactly as in the
-point-treatment setting \cite{bonvini2023flexibly}.
-\end{remark}
-
 \section{Theoretical Properties}
 \label{sec:theory}
 
-We now give large-sample properties of the proposed estimators. The finite
-subgroup TMLE is a regular asymptotically linear estimator of the vector of
-subgroup-specific LMTP effects under standard cross-fitting and second-order
-remainder conditions. The DR-Learner is analyzed as a regression with estimated
-pseudo-outcomes. Its behavior is compared to the benchmark regression that would
-be obtained if the nuisance functions were known.
+We now describe the asymptotic properties of the proposed estimators. 
+The finite subgroup TMLE is a regular asymptotically linear estimator of the
+vector of subgroup-specific LMTP effects under standard cross-fitting and
+second-order remainder conditions. The DR-Learner is analyzed as a regression
+with estimated pseudo-outcomes. Its behavior is compared to the benchmark
+regression that would be obtained if the nuisance functions were known.
 
 Throughout this section, let \(P_0\) denote the true observed data law. For a
 policy \(\mathbbm d\), let \(\eta_0^{\mathbbm d}\) denote the corresponding true
@@ -2076,9 +1906,11 @@ defined in Section~\ref{subsec:dr-learner}. Let
   \widehat{\mathbb E}_n[Z\mid V=v]
 \]
 denote a generic second-stage regression estimator applied to an outcome
-\(Z\) and evaluated at \(V=v\). This notation may represent, for example, a
-series regression, spline regression, local polynomial regression, random forest,
-or any other regression method used in the second stage.
+\(Z\) and evaluated at \(V=v\). This notation may represent, for example, a linear regression,
+a series or sieve regression, spline regression, or local polynomial regression. 
+Following \cite{kennedyOptimalDoublyRobust2023a}, the second stage regressor
+needs to be a \textit{linear smoother} (a wide class of methods) for oracle equivalency
+results to be achieved.
 
 The feasible DR-Learner is
 \[
@@ -2294,7 +2126,7 @@ Since
     \mid V=v
   \right],
 \]
-the first equation of the theorem follows. Adding and subtracting \(\tau(v)\) gives the second
+the first equation of the theorem follows. Adding and subtracting \(\tau(v)\) gives the 
 second equation. The oracle equivalence claim follows if the smoothed conditional bias
 is negligible relative to the oracle regression error.
 \end{proof}
@@ -2304,18 +2136,7 @@ is negligible relative to the oracle regression error.
 Suppose the conditions of Theorem~\ref{thm:dr-learner-oracle} hold. 
 If the oracle regression is consistent for the truth, and the 
 conditional pseudo-outcome bias 
-decays to zero, then the oracle regression will be consistent. That is to 
-say,
-If \( \widetilde\tau(v)-\tau(v)=o_p(1) \) and
-\(
-  \widehat{\mathbb E}_n
-  \left[
-    b_{\widehat\eta}(V)
-    \mid V=v
-  \right]
-  =
-  o_p(1),
-\) then \( \widehat\tau_{\mathrm{dr}}(v)-\tau(v)=o_p(1) \).
+decays to zero, then the oracle regression will be consistent. 
 \end{corollary}
 
 \begin{proof}
@@ -2326,434 +2147,138 @@ Theorem~\ref{thm:dr-learner-oracle}.
 \subsection{Second-order bias and nuisance-rate conditions}
 \label{subsec:second-order-bias}
 
-Both estimators require control of a second-order remainder: condition 6 of
-Assumption~\ref{assump:subgroup-tmle-regularity} for the subgroup TMLE, and the
-conditional-bias condition
-\(\widehat{\mathbb E}_n\{b_{\widehat\eta}(V)\mid V=v\}=o_p\{R_n^\star(v)\}\) of
-Theorem~\ref{thm:dr-learner-oracle} for the DR-Learner. In this section we give
-these remainders an explicit form and derive sufficient nuisance rate
-conditions. The key object is the conditional bias of the uncentered
-pseudo-outcome under estimated nuisances,
-\[
-  b_{\widehat\eta}^{\d}(v)
-  =
-  \mathbb{E}_{P_0}
-  \left\{
-    \varphi_{\d}(O;\widehat\eta^{\d})
-    -
-    \varphi_{\d}(O;\eta_0^{\d})
-    \mid V=v
-  \right\},
-\]
-where the expectation is over \(O\) with the estimated nuisances
-\(\widehat\eta^{\d}\) held fixed (as guaranteed by cross-fitting). Because
-\(\mathbb{E}_{P_0}\{\varphi_{\d}(O;\eta_0^{\d})\mid V=v\}=\theta_{\d}(v)\) by
-Theorem~\ref{thm:pseudooutcome-identification}, \(b_{\widehat\eta}^{\d}\) is
-exactly the conditional analogue of the scalar second-order remainder, and the
-subgroup TMLE remainder satisfies
-\(R_{\d,n}(v)=b_{\widehat\eta}^{\d}(v)+o_p(n^{-1/2})\) under the conditions of
-Remark~\ref{rem:subgroup-proportion} below.
+% Both estimators require control of a second-order remainder: condition 6 of
+% Assumption~\ref{assump:subgroup-tmle-regularity} for the subgroup TMLE, and the
+% conditional-bias condition
+% \(\widehat{\mathbb E}_n\{b_{\widehat\eta}(V)\mid V=v\}=o_p\{R_n^\star(v)\}\) of
+% Theorem~\ref{thm:dr-learner-oracle} for the DR-Learner. In this section we give
+% these remainders an explicit form and derive sufficient nuisance rate
+% conditions. The key object is the conditional bias of the uncentered
+% pseudo-outcome under estimated nuisances,
+% \[
+%   b_{\widehat\eta}^{\d}(v)
+%   =
+%   \mathbb{E}_{P_0}
+%   \left\{
+%     \varphi_{\d}(O;\widehat\eta^{\d})
+%     -
+%     \varphi_{\d}(O;\eta_0^{\d})
+%     \mid V=v
+%   \right\},
+% \]
+% where the expectation is over \(O\) with the estimated nuisances
+% \(\widehat\eta^{\d}\) held fixed (as guaranteed by cross-fitting). Because
+% \(\mathbb{E}_{P_0}\{\varphi_{\d}(O;\eta_0^{\d})\mid V=v\}=\theta_{\d}(v)\) by
+% Theorem~\ref{thm:pseudooutcome-identification}, \(b_{\widehat\eta}^{\d}\) is
+% exactly the conditional analogue of the scalar second-order remainder, and the
+% subgroup TMLE remainder satisfies
+% \(R_{\d,n}(v)=b_{\widehat\eta}^{\d}(v)+o_p(n^{-1/2})\) under the conditions of
+% Remark~\ref{rem:subgroup-proportion} below.
 
-\begin{proposition}[Product form of the conditional remainder]
-\label{prop:second-order-remainder}
-Let \(\widehat\omega_{s-1}^{\d}(O)=\prod_{k=0}^{s-1}\widehat
-r_k^{\d}(A_k,H_k)\) with the convention \(\widehat\omega_{-1}^{\d}\equiv 1\).
-Under Assumptions~\ref{assump:consistency}--\ref{assump:baseline-v}, and
-provided the estimated ratios and regressions are uniformly bounded,
-\[
-  b_{\widehat\eta}^{\d}(v)
-  =
-  -
-  \sum_{s=0}^{\tau}
-  \mathbb{E}_{P_0}
-  \left[
-    \widehat\omega_{s-1}^{\d}(O)
-    \left\{
-      \widehat r_s^{\d}(A_s,H_s)
-      -
-      r_{s}^{\d}(A_s,H_s)
-    \right\}
-    \left\{
-      \widehat m_s^{\d}(A_s,H_s)
-      -
-      m_{s}^{\d}(A_s,H_s)
-    \right\}
-    \,\middle|\,
-    V=v
-  \right].
-\]
-\end{proposition}
+% \begin{proposition}[Product form of the conditional remainder]
+% \label{prop:second-order-remainder}
+% Let \(\widehat\omega_{s-1}^{\d}(O)=\prod_{k=0}^{s-1}\widehat
+% r_k^{\d}(A_k,H_k)\) with the convention \(\widehat\omega_{-1}^{\d}\equiv 1\).
+% Under Assumptions~\ref{assump:consistency}--\ref{assump:baseline-v}, and
+% provided the estimated ratios and regressions are uniformly bounded,
+% \[
+%   b_{\widehat\eta}^{\d}(v)
+%   =
+%   -
+%   \sum_{s=0}^{\tau}
+%   \mathbb{E}_{P_0}
+%   \left[
+%     \widehat\omega_{s-1}^{\d}(O)
+%     \left\{
+%       \widehat r_s^{\d}(A_s,H_s)
+%       -
+%       r_{s}^{\d}(A_s,H_s)
+%     \right\}
+%     \left\{
+%       \widehat m_s^{\d}(A_s,H_s)
+%       -
+%       m_{s}^{\d}(A_s,H_s)
+%     \right\}
+%     \,\middle|\,
+%     V=v
+%   \right].
+% \]
+% \end{proposition}
 
-\begin{proof}
-The argument telescopes the sum defining \(\varphi_{\d}\) one time point at a
-time, using at each \(s\) the intervention-density identity
-\(\mathbb{E}\{f(A_s^{\d},H_s)\mid H_s\}
-=\mathbb{E}\{r_s^{\d}(A_s,H_s)f(A_s,H_s)\mid H_s\}\), which holds for any
-bounded \(f\) by Assumption~\ref{assump:policy-regularity} and the definition
-of \(r_s^{\d}\). Note that the cumulative weight multiplying the \(s\)-th
-product is the \emph{estimated} weight \(\widehat\omega_{s-1}^{\d}\), not its
-population counterpart. Full details are given in the Supplementary Material.
-\end{proof}
+% \begin{proof}
+% The argument telescopes the sum defining \(\varphi_{\d}\) one time point at a
+% time, using at each \(s\) the intervention-density identity
+% \(\mathbb{E}\{f(A_s^{\d},H_s)\mid H_s\}
+% =\mathbb{E}\{r_s^{\d}(A_s,H_s)f(A_s,H_s)\mid H_s\}\), which holds for any
+% bounded \(f\) by Assumption~\ref{assump:policy-regularity} and the definition
+% of \(r_s^{\d}\). Note that the cumulative weight multiplying the \(s\)-th
+% product is the \emph{estimated} weight \(\widehat\omega_{s-1}^{\d}\), not its
+% population counterpart.
+% \end{proof}
 
-Two features of Proposition~\ref{prop:second-order-remainder} drive the rate
-conditions used throughout Section~\ref{sec:theory}. First, the remainder is a
-sum of \(\tau+1\) terms, each a product of the estimation errors of one density
-ratio and its same-time-point sequential regression; there are no cross-time
-products. Second, each product enters only through its conditional mean given
-\(V=v\), so all rates may be taken with respect to the subgroup-restricted norm
-\[
-  \|f\|_{2,v}^2
-  =
-  \mathbb{E}_{P_0}
-  \left\{
-    f(O)^2 \mid V=v
-  \right\}.
-\]
+% Two features of Proposition~\ref{prop:second-order-remainder} drive the rate
+% conditions used throughout Section~\ref{sec:theory}. First, the remainder is a
+% sum of \(\tau+1\) terms, each a product of the estimation errors of one density
+% ratio and its same-time-point sequential regression; there are no cross-time
+% products. Second, each product enters only through its conditional mean given
+% \(V=v\), so all rates may be taken with respect to the subgroup-restricted norm
+% \[
+%   \|f\|_{2,v}^2
+%   =
+%   \mathbb{E}_{P_0}
+%   \left\{
+%     f(O)^2 \mid V=v
+%   \right\}.
+% \]
 
-\begin{corollary}[Sufficient product-rate conditions]
-\label{cor:product-rates}
-Suppose \(\max_{s}\sup_o|\widehat\omega_{s-1}^{\d}(o)|=O_p(1)\). Then, by the
-Cauchy--Schwarz inequality,
-\[
-  \left|b_{\widehat\eta}^{\d}(v)\right|
-  \;\lesssim\;
-  \sum_{s=0}^{\tau}
-  \left\|
-    \widehat r_s^{\d}-r_{s}^{\d}
-  \right\|_{2,v}
-  \left\|
-    \widehat m_s^{\d}-m_{s}^{\d}
-  \right\|_{2,v}.
-\]
-In particular, if for every \(s=0,\ldots,\tau\),
-\(\|\widehat r_s^{\d}-r_{s}^{\d}\|_{2,v}
-  \|\widehat m_s^{\d}-m_{s}^{\d}\|_{2,v}
-  =o_p(n^{-1/2})\)
---- as holds when each nuisance converges at the \(o_p(n^{-1/4})\) rate
-attainable by many machine-learning estimators under smoothness or sparsity ---
-then \(R_{\d,n}(v)=o_p(n^{-1/2})\), and condition 6 of
-Assumption~\ref{assump:subgroup-tmle-regularity} is satisfied.
-\end{corollary}
+% \begin{corollary}[Sufficient product-rate conditions]
+% \label{cor:product-rates}
+% Suppose \(\max_{s}\sup_o|\widehat\omega_{s-1}^{\d}(o)|=O_p(1)\). Then, by the
+% Cauchy--Schwarz inequality,
+% \[
+%   \left|b_{\widehat\eta}^{\d}(v)\right|
+%   \;\lesssim\;
+%   \sum_{s=0}^{\tau}
+%   \left\|
+%     \widehat r_s^{\d}-r_{s}^{\d}
+%   \right\|_{2,v}
+%   \left\|
+%     \widehat m_s^{\d}-m_{s}^{\d}
+%   \right\|_{2,v}.
+% \]
+% In particular, if for every \(s=0,\ldots,\tau\),
+% \(\|\widehat r_s^{\d}-r_{s}^{\d}\|_{2,v}
+%   \|\widehat m_s^{\d}-m_{s}^{\d}\|_{2,v}
+%   =o_p(n^{-1/2})\)
+% --- as holds when each nuisance converges at the \(o_p(n^{-1/4})\) rate
+% attainable by many machine-learning estimators under smoothness or sparsity ---
+% then \(R_{\d,n}(v)=o_p(n^{-1/2})\), and condition 6 of
+% Assumption~\ref{assump:subgroup-tmle-regularity} is satisfied.
+% \end{corollary}
 
-\begin{remark}[Multiple robustness]
-\label{rem:multiple-robustness}
-The product form implies \(2^{\tau+1}\)-fold robustness: the conditional bias
-at \(v\) vanishes provided that, for \emph{each} time point \(s\) separately,
-at least one of \(\widehat r_s^{\d}\) and \(\widehat m_s^{\d}\) is consistent
-in \(\|\cdot\|_{2,v}\), with the other merely bounded. Consistent estimation of
-all ratios, or of all sequential regressions, are two special cases.
-\end{remark}
+% \begin{remark}[Multiple robustness]
+% \label{rem:multiple-robustness}
+% The product form implies \(2^{\tau+1}\)-fold robustness: the conditional bias
+% at \(v\) vanishes provided that, for \emph{each} time point \(s\) separately,
+% at least one of \(\widehat r_s^{\d}\) and \(\widehat m_s^{\d}\) is consistent
+% in \(\|\cdot\|_{2,v}\), with the other merely bounded. Consistent estimation of
+% all ratios, or of all sequential regressions, are two special cases.
+% \end{remark}
 
-\begin{remark}[Weaker conditions for the DR-Learner]
-\label{rem:dr-learner-rates}
-For the DR-Learner, the requirement of Theorem~\ref{thm:dr-learner-oracle} is
-that the smoothed conditional bias be \(o_p\{R_n^\star(v)\}\), where
-\(R_n^\star(v)\) is the oracle rate of the second-stage regression. When \(V\)
-is continuous, \(R_n^\star(v)\) is slower than \(n^{-1/2}\), so the nuisance
-product rates need only be faster than the oracle rate rather than faster than
-\(n^{-1/2}\). Oracle equivalence for conditional LMTP effects is therefore
-available under strictly weaker nuisance conditions than root-\(n\) inference
-for the subgroup vector, in direct analogy with the point-treatment DR-Learner
-\cite{kennedy2023towards}.
-\end{remark}
-
-\begin{remark}[Subgroup-proportion remainder]
-\label{rem:subgroup-proportion}
-The subgroup functional \(\theta_{\d}(v)
-=\mathbb{E}\{\mathds{1}(V=v)\,m_0^{\d}(A_0^{\d},L_0)\}/p_v\) contributes an
-additional remainder through \(\widehat p_v\). A direct expansion of the ratio
-shows this contribution is
-\(-(\widehat p_v-p_v)\{\widehat\theta_{\d}(v)-\theta_{\d}(v)\}/p_v
-+o_p(n^{-1/2})\), a product of a root-\(n\) term and a consistent-estimation
-error. It is therefore \(o_p(n^{-1/2})\) whenever
-\(\widehat\theta_{\d}(v)\) is consistent and \(p_v\) is bounded away from zero
-(condition 2 of Assumption~\ref{assump:subgroup-tmle-regularity}), and is
-dominated by the terms in Proposition~\ref{prop:second-order-remainder}.
-\end{remark}
+\textit{\textcolor{BrickRed}{To be rewritten}}
 
 
 \section{Simulation Study}
 \label{sec:simulation-study}
 
-We evaluate the subgroup TMLE and its simultaneous-inference procedures in a
-three-timepoint LMTP setting (\(\tau=2\)) in which the truth, the sequential
-regressions, and the density ratios are all available in closed form, and we
-evaluate the DR-Learner in a companion design with a continuous baseline
-modifier. Closed-form nuisances serve two purposes: they permit an oracle arm
-that anchors every comparison at the efficiency bound, and they make the truth
-exact rather than approximated by Monte Carlo.
-
-\subsection{Design: subgroup inference with three exposure timepoints}
-\label{subsec:sim1-design}
-
-Baseline covariates are \(L_0=(X,W_1,W_2)\) with \(X\sim N(0,I_{d})\) and
-\(W_1,W_2\) independent Bernoulli\((1/2)\) effect modifiers. Time-varying
-covariates \(Z_1,Z_2\) and exposures \(A_0,A_1,A_2\) follow structural
-equations that are \emph{linear in all endogenous variables} with constant
-coefficients, while arbitrary (mean-centered) nonlinearity in \(X\) enters
-additively:
-\begin{align*}
-  A_0 &= \mu(X) + \varepsilon_0,
-  &
-  Z_1 &= 0.4\,A_0 + q(X) + \nu_1,
-  \\
-  A_1 &= 0.3\,A_0 + 0.3\,Z_1 + \mu(X) + \varepsilon_1,
-  &
-  Z_2 &= 0.4\,A_1 + 0.2\,Z_1 + q(X) + \nu_2,
-  \\
-  A_2 &= 0.3\,A_1 + 0.3\,Z_2 + \mu(X) + \varepsilon_2,
-  &
-  Y &= f(X) + \beta(X,W)\textstyle\sum_{t=0}^{2}A_t + 0.3\,(Z_1+Z_2)
-      + \varepsilon_Y,
-\end{align*}
-with all noise terms independent standard normal and
-\(\beta(X,W)=1+b_1W_1+b_2W_2\) (plus \(0.5\sin(\pi X_1)\) in the complex
-setting below). The policy is the additive shift
-\(d_t(a_t,h_t)=a_t+\delta\) with \(\delta=1/2\) at every timepoint, and the
-target is the vector of shifted means \(\theta_{\d}(v)\) over the four
-\emph{overlapping} subgroups
-\(\mathcal V=\{W_1=1,\;W_2=1,\;W_1=W_2=1,\;\text{overall}\}\). Overlap is
-deliberate: it induces substantial off-diagonal correlation in
-\(\Sigma_{\d}\), which is precisely the structure that separates the
-max-\(|Z|\) band from Bonferroni.
-
-Because the endogenous coefficients are constants, the shift propagates
-deterministically through the system:
-\(\Delta_{A_0}=0.5\), \(\Delta_{Z_1}=0.2\), \(\Delta_{A_1}=0.71\),
-\(\Delta_{Z_2}=0.324\), \(\Delta_{A_2}=0.8102\), so that, exactly,
-\[
-  \theta_{\d}(v) - \mathbb{E}(Y\mid V=v)
-  =
-  \mathbb{E}\{\beta(X,W)\mid V=v\}\times 2.0202
-  \;+\;
-  0.3\times 1.048/2
-  =
-  2.0202\,\mathbb{E}\{\beta\mid V=v\} + 0.1572,
-\]
-and the level terms vanish by mean-centering, so in the linear settings
-\(\theta_{\d}(v)\) equals this expression exactly. The closed-form sequential
-regressions \(m_t^{\d}\) and Gaussian-shift ratios
-\(r_t^{\d}(a_t,h_t)=\exp\{\delta(a_t-\mu_t(h_t))-\delta^2/2\}\) supply the
-oracle nuisance arm and the per-subgroup efficiency bounds, which are computed
-by evaluating the efficient influence function on a single large Monte Carlo
-sample (\(2\times 10^6\) draws) and verified against the exact truths.
-
-We cross four data-generating settings with an estimator roster. The settings
-vary the modification strength \((b_1,b_2)\in\{(0,0),(0.15,-0.15),(0.5,-0.5)\}\)
-with \(d=2\) and linear \(\mu,q,f\) (so that suitably \(W\)-interacted
-main-terms generalized linear models are \emph{exactly} correct), plus a
-complex setting with \(d=4\), nonlinear \(\mu,q,f\), and
-\(\beta\) depending on \(X\) (so those models are misspecified by
-construction). The roster varies: (i) estimator --- one-step versus TMLE, the
-latter with the weighted or linear fluctuation of
-Section~\ref{subsec:subgroup-tmle}; (ii) nuisance estimation --- correctly
-specified or misspecified parametric regressions, an oracle arm evaluating the
-closed-form nuisances, and a super learner arm in which each nuisance is fit
-once on the full sample and predictions are taken out-of-fold, with candidate
-learners refit without each observation's fold and combined using pooled
-ensemble weights, the cross-validated targeting construction of
-\cite{zheng2011cvtmle}; and (iii) density-ratio estimation --- direct
-conditional-density modeling versus the odds-ratio classification
-representation. Each cell uses 1{,}000 replications at
-\(n\in\{1000,2000,4000,8000\}\)
-(\(n\le 4000\) for super-learner arms). Endpoints are \(n\times\)MSE relative
-to the efficiency bound, \(\sqrt n\,\)bias, standard-error calibration,
-marginal coverage, familywise coverage of the three simultaneous procedures
-(unadjusted, Bonferroni, and max-\(|Z|\) based on \(\widehat\Sigma_{\d}\)),
-size and power of the homogeneity Wald test with full versus diagonal
-covariance, and coverage and power for the nested contrast
-\(\theta_{\d}(W_1{=}1)-\theta_{\d}(W_1{=}W_2{=}1)\) using joint versus
-independence-based standard errors.
-
 \subsection{Results}
 \label{subsec:sim1-results}
-
-Figure~\ref{fig:sim1-simultaneous} displays the headline endpoint. The oracle
-arms attain the efficiency bound with nominal marginal and familywise coverage
-at all sample sizes, validating the implementation. Unadjusted per-subgroup
-intervals undercover as a joint statement in every setting (familywise
-coverage near {\color{Mahogany}0.8XX}), while Bonferroni is conservative. The
-max-\(|Z|\) band achieves nominal familywise coverage using a critical value of
-{\color{Mahogany}X.XX} against Bonferroni's \(2.50\)
-({\color{Mahogany}X.X}\% narrower intervals) at a mean off-diagonal influence
-function correlation of {\color{Mahogany}0.XX}. In the linear settings the
-correctly specified parametric arms are efficient, and the classification-based
-ratio arm is numerically indistinguishable from the density-based arm; in the
-complex setting the misspecified parametric arms exhibit
-\(\sqrt n\)-growing bias and degrading coverage while the super-learner arms
-remain near the bound, with coverage {\color{Mahogany}0.9XX} at
-\(n=4000\). The homogeneity test with the full covariance holds its size on the
-null setting ({\color{Mahogany}0.0XX} at nominal 0.05) and dominates the
-diagonal-covariance version in power, and the joint-covariance standard error
-for the nested contrast is correctly calibrated where the independence-based
-standard error is conservative by a factor of {\color{Mahogany}X.X}, forfeiting
-corresponding power. Complete results for all settings, arms, and endpoints
-appear in the Supplementary Material.
-
-\begin{figure}[H]
-\centering
-% \includegraphics[width=0.95\textwidth]{figures/figM1_manuscript_simultaneous_coverage.pdf}
-\caption{Familywise coverage of nominal 95\% simultaneous intervals for the
-four overlapping subgroup LMTP means (\(\tau=2\), additive shift
-\(\delta=1/2\)), for the targeted estimator with super-learner nuisances, under
-a setting with no effect modification (left) and the complex nonlinear setting
-with strong modification (right). The max-\(|Z|\) band calibrated to the
-estimated joint influence-function covariance attains nominal familywise
-coverage with narrower intervals than Bonferroni; the oracle-nuisance
-max-\(|Z|\) curve is shown as a reference. Error bars are Monte Carlo 95\%
-intervals over 1{,}000 replications.}
-\label{fig:sim1-simultaneous}
-\end{figure}
-
-\subsection{Design and results: DR-Learner with a continuous modifier}
-\label{subsec:sim2}
-
-The second study retains the longitudinal structure above but replaces the
-binary modifiers with a continuous baseline variable \(V\sim\mathrm{Unif}(-1,1)\),
-correlated with the confounders through
-{\color{Mahogany}[finalize: \(V=\Phi^{-1}\)-coupled to \(X_1\) at correlation
-0.3]}, and sets \(\beta(V)=1+\gamma\,\{\sin(\pi V)+V\}\), a smooth nonmonotone
-modification profile, so that
-\(\theta_{\d}(v)=2.0202\,\beta(v)+0.1572\) exactly. We compare the DR-Learner
-of Section~\ref{subsec:dr-learner} --- cross-fitted pseudo-outcomes
-\(\widehat\varphi_{\d}\) regressed on \(V\) by local linear smoothing with
-cross-validated bandwidth --- against (i) the oracle second-stage regression
-that uses \(\varphi_{\d}(O;\eta_0)\), and (ii) a plug-in learner that regresses
-\(\widehat m_0^{\d}(A_0^{\d},L_0)\) on \(V\) without the influence-function
-correction. Endpoints are integrated root mean squared error over the central
-90\% of the support of \(V\) and pointwise coverage of 95\% confidence bands.
-Consistent with Theorem~\ref{thm:dr-learner-oracle}, the DR-Learner's RMSE
-tracks the oracle within {\color{Mahogany}X}\% by \(n=4000\) even with
-super-learner nuisances, while the plug-in learner inherits first-order
-nuisance bias in the complex setting
-(Supplementary Figure~{\color{Mahogany}SX}).
 
 \section{Application}
 \label{sec:application}
 
-We apply the proposed methods to estimate the effect of deforestation on
-malaria incidence in Madagascar over 2010--2022, using monthly confirmed case
-counts reported by 2{,}773 public health clinics linked to satellite-derived
-annual forest-cover loss within each clinic's catchment area
-\cite{vieilledent2018combining}. Madagascar spans strongly contrasting
-ecosystems --- humid forests, dry deciduous forests, spiny thickets, succulent
-woodlands, and subhumid forests --- and the ecological dynamics linking land
-use change to vector habitat differ across them, making effect heterogeneity
-by ecological zone a primary scientific question rather than a secondary
-subgroup analysis. Each clinic is assigned to one of \(K=5\) zones
-\cite{dinerstein2017ecoregion}, with the sparsely populated mangrove and
-montane regions folded into their surrounding zones.
-
-The observed data for clinic \(i\) are
-\(O_i=(L_{0,i},A_{0,i},L_{1,i},A_{1,i},\ldots,A_{\tau,i},Y_i)\) with annual
-exposure timepoints (\(\tau=12\)): \(A_{t,i}\) is forest loss in catchment
-\(i\) in year \(2010+t\), \(L_{t,i}\) collects time-varying confounders ---
-annual precipitation, minimum, maximum, and range of temperature, soil
-moisture, the oceanic Ni\~no index, population size and growth, crop
-productivity, and lagged malaria incidence --- and \(Y_i\) is the clinic-level
-malaria case rate in 2022. Baseline covariates \(L_{0,i}\) additionally include
-elevation, ecological zone \(V_i\), and small-area poverty estimates. We
-consider the policy \(\d\) that reduces observed deforestation by
-{\color{Mahogany}10}\% at every timepoint,
-\(d_t(a_t,h_t)=(1-{\color{Mahogany}0.10})\,a_t\), an intervention that respects
-the observed exposure distribution in each zone rather than assigning a common
-fixed exposure, and we report the contrast against the natural course. We
-assume interference across catchments is negligible after conditioning on each
-clinic's own history; analyses accommodating spillover between neighboring
-health sheds are the subject of ongoing work and are discussed in
-Section~\ref{sec:discussion}.
-
-All sequential regressions and density ratios were estimated with a super
-learner over {\color{Mahogany}[list: penalized GLMs with Poisson loss,
-multivariate adaptive regression splines, random forests, gradient-boosted
-trees]}, using out-of-fold predictions, with count outcomes weighted by
-catchment person-time. The joint subgroup TMLE with the weighted fluctuation
-targeted the six-dimensional parameter (five zone-specific means and the
-national mean) for each policy. As a positivity diagnostic we tracked the
-effective sample size implied by the cumulative estimated ratios
-\(\widehat\omega_{s}^{\d}\) at every timepoint, which fell from \(n=2{,}773\)
-to {\color{Mahogany}X{,}XXX} at \(s=\tau\); ratios were truncated at
-{\color{Mahogany}[bound]} affecting {\color{Mahogany}X.X}\% of clinic-years.
-
-Table~{\color{Mahogany}\ref{tab:application-results}} reports the estimated
-policy effects with 95\% pointwise and max-\(|Z|\) simultaneous intervals. The
-estimated national effect of the {\color{Mahogany}10}\% reduction policy is a
-change of {\color{Mahogany}XX.X} (95\% CI: {\color{Mahogany}XX.X, XX.X}) cases
-per 1{,}000 person-years. Zone-specific estimates ranged from
-{\color{Mahogany}XX.X} in the {\color{Mahogany}[zone]} to
-{\color{Mahogany}XX.X} in the {\color{Mahogany}[zone]}; the simultaneous
-max-\(|Z|\) critical value was {\color{Mahogany}X.XX}, against a Bonferroni
-value of \(2.64\) for six parameters, with mean off-diagonal influence-function
-correlation {\color{Mahogany}0.XX} induced by the nesting of the national
-parameter. The homogeneity Wald test with the full estimated covariance
-{\color{Mahogany}[rejected / did not reject]} equality of zone-specific effects
-(\(\chi^2_{4}={\color{Mahogany}XX.X}\),
-\(p={\color{Mahogany}0.XXX}\)). To characterize heterogeneity in continuous
-baseline features, we applied the DR-Learner with \(V\) taken to be baseline
-forest cover, regressing the pseudo-outcome contrast on \(V\) by local linear
-smoothing; the estimated conditional effect curve
-(Figure~{\color{Mahogany}\ref{fig:application-drlearner}}) indicates
-{\color{Mahogany}[shape: e.g., effects concentrated among catchments with high
-baseline cover, plateauing above the XXth percentile]}, consistent with the
-frontier-clearing mechanisms hypothesized in the ecological literature
-\cite{macdonald2019amazon}. Sensitivity analyses using an alternative
-forest-loss product and alternative malaria endpoints, together with all
-diagnostics, appear in the Supplementary Material.
-
 \section{Discussion}
 \label{sec:discussion}
-
-We have developed efficient, multiply robust methodology for effect
-heterogeneity analysis of longitudinal modified treatment policies: a jointly
-targeted estimator of subgroup-specific LMTP means and contrasts with
-simultaneous inference calibrated to the estimated joint influence-function
-covariance, and a DR-Learner for conditional LMTP effect functions of
-continuous baseline covariates with oracle-equivalence guarantees. The two
-procedures are complementary answers to the same scientific question at
-different resolutions of the modifier, and both reduce to nuisance objects ---
-sequential regressions and policy density ratios --- that are already computed
-by standard LMTP software, so heterogeneity analysis imposes essentially no
-additional nuisance-estimation burden beyond the marginal analysis.
-
-Three aspects of the joint approach merit emphasis. First, targeting the
-subgroup vector jointly, rather than refitting within subgroups, stabilizes
-nuisance estimation for small subgroups and yields the full covariance matrix
-\(\widehat\Sigma\) as a byproduct; the simultaneous max-\(|Z|\) band and the
-homogeneity test are then available at no extra cost. The width advantage of
-the max-\(|Z|\) band over Bonferroni grows with the correlation among subgroup
-estimators, which is substantial precisely in the designs applied researchers
-favor --- overlapping subgroups, nested contrasts against an overall effect,
-and marginal-plus-subgroup reporting as in our application. Second, the
-product form of the second-order remainder
-(Proposition~\ref{prop:second-order-remainder}) shows that the sequential
-double robustness familiar from marginal LMTP estimation
-\cite{diaz2023lmtp} carries over conditionally on \(V\), time point by time
-point. Third, for continuous modifiers the DR-Learner requires only that
-nuisance error products beat the oracle nonparametric rate, not root-\(n\), so
-flexible machine learning remains admissible exactly where it is most needed.
-
-Several limitations point to future work. Our analysis treats clinic
-catchments as non-interfering units after conditioning on their own histories;
-deforestation and malaria plausibly spill over between neighboring health
-sheds, and extending conditional LMTP estimands and estimators to accommodate
-network or spatial interference is a natural next step. Second, the DR-Learner
-outputs a nonparametric curve; interpretation tools developed for
-point-treatment conditional effects --- additive projections, partial
-dependence summaries, and variable-importance measures for effect modification
-\cite{bonvini2023flexibly,semenova2021debiased,hines2022variable} --- extend
-directly by substituting our pseudo-outcome, and projections of
-\(\theta_{\d}(\cdot)\) onto low-dimensional working models summaries 
-with root-\(n\) inference. Third, subgroup-specific
-\emph{policies}, in which different shifts \(\d_v\) are assigned to different
-subgroups --- of interest, for example, when feasible reductions in
-deforestation differ by ecological zone, or when immune-marker shifts
-attainable by a refined vaccine differ across subpopulations
-\cite{hejazi2023stochastic} --- are immediately accommodated by our framework,
-since the subgroup TMLE targets each \(\theta_{\d_v}(v)\) jointly with any
-collection of policies. Finally, count outcomes recorded against person-time
-invite loss functions and fluctuation submodels adapted to rate parameters;
-our weighted fluctuation is a first step, and a systematic treatment of
-nonparametric rate targets under LMTPs would be valuable.
 
 \section{References}
 \bibliography{refs}
